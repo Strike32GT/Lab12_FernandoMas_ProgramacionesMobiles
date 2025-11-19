@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "934180174754",
+    "project_id": "lab12fernandomas",
+    "storage_bucket": "lab12fernandomas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934180174754:android:c443a0736159e91da650fb",
+        "android_client_info": {
+          "package_name": "com.mas.lab12_fernandomas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6CeowEZg7stsKuXkyf3IXx_oHQ1XzZdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
