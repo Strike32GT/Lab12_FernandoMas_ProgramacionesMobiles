@@ -10,20 +10,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
-
-
-
+import com.mas.lab12_fernandomas.firebase.AuthRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
 fun LoginScreen(onNavigateToRegister: () -> Unit,
                 onLoginSuccess: () -> Unit) {
-    val auth = FirebaseAuth.getInstance()
+
+    val repo = remember { AuthRepository() }
     val context=LocalContext.current
+    val scope =rememberCoroutineScope()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -89,17 +90,23 @@ fun LoginScreen(onNavigateToRegister: () -> Unit,
                         return@Button
                     }
                     isLoading = true
-                    auth.signInWithEmailAndPassword(email,password)
-                        .addOnCompleteListener{ task ->
-                        isLoading = false
-                        if(task.isSuccessful){
-                            Toast.makeText(context, "Inicio Exitoso", Toast.LENGTH_SHORT).show()
-                        onLoginSuccess()
-                        } else {
-                            Toast.makeText(
-                                context, "Error: ${task.exception?.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
+
+                    scope.launch(Dispatchers.IO) {
+                        val result = repo.login(email, password)
+
+                        withContext(Dispatchers.Main){
+                            isLoading = false
+
+                            if (result) {
+                                Toast.makeText(context, "Inicio Exitoso", Toast.LENGTH_SHORT).show()
+                                onLoginSuccess()
+                            }else {
+                                Toast.makeText(
+                                    context,
+                                    "Error al iniciar sesion",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
                 },

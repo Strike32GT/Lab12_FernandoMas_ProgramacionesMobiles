@@ -9,6 +9,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.mas.lab12_fernandomas.firebase.UserRepository
+import com.mas.lab12_fernandomas.models.User
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
@@ -17,6 +20,7 @@ fun RegisterScreen(
 ) {
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -83,8 +87,28 @@ fun RegisterScreen(
                         .addOnCompleteListener { task ->
                             isLoading = false
                             if (task.isSuccessful) {
-                                Toast.makeText(context, "Usuario creado ✅", Toast.LENGTH_SHORT).show()
-                                onRegisterSuccess()
+                                val uid=auth.currentUser?.uid
+                                if (uid == null){
+                                    Toast.makeText(context, "No se pudo Obtener el UID", Toast.LENGTH_SHORT).show()
+                                    return@addOnCompleteListener
+                                }
+                                val userRepository = UserRepository()
+                                val usuario = User(nombre = email.substringBefore("@"), correo = email)
+
+                                val repo = UserRepository()
+                                scope.launch {
+                                    try {
+                                        repo.addUser(usuario, uid)
+                                        Toast.makeText(context,"Usuario creado correctamente", Toast.LENGTH_SHORT).show()
+                                        onRegisterSuccess()
+                                    }catch (ex : Exception){
+                                        Toast.makeText(context, "Error al guardar: ${ex.message}", Toast.LENGTH_SHORT).show()
+                                    }finally {
+                                        isLoading = false
+                                    }
+
+                                }
+
                             } else {
                                 Toast.makeText(
                                     context,
